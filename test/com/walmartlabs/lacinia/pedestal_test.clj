@@ -20,6 +20,7 @@
     [clojure.string :as str]
     [com.walmartlabs.lacinia.test-utils :refer [test-server-fixture
                                                 send-request
+                                                send-get-request
                                                 send-json-request
                                                 send-json-string-request]]
     [clojure.spec.test.alpha :as stest])
@@ -37,6 +38,13 @@
     (is (= {:data {:echo {:method "get"
                           :value "hello"}}}
            (:body response)))))
+
+(deftest can-handle-vars-url-params
+  (let [query "query ($v: String) { echo(value: $v) { value } }"
+        response (send-get-request query {:v "Calculon"})]
+    (is (= {:body {:data {:echo {:value "Calculon"}}}
+            :status 200}
+           (select-keys response [:status :body])))))
 
 (deftest simple-post-query
   (let [response (send-request :post "{ echo(value: \"hello\") { value method }}")]

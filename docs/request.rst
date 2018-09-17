@@ -9,6 +9,8 @@ GET
 ---
 
 The GraphQL query document must be provided as query parameter ``query``.
+The optional query parameter ``variables`` can be used to send query variables
+as a JSON-encoded string.
 
 POST (application/json)
 -----------------------

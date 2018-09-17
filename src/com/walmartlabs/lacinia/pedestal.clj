@@ -126,6 +126,12 @@
                :relative-position #{:before :after :replace}
                :interceptor-name keyword?))
 
+(defn ^:private get-param-variables
+  "Get variables from URL params."
+  [request]
+  (when-let [vars (get-in request [:query-params :variables])]
+    (cheshire/parse-string vars true)))
+
 (defmulti extract-query
   "Based on the content type of the query, adds up to three keys to the request:
 
@@ -151,14 +157,15 @@
 
 (defmethod extract-query :application/graphql [request]
   (let [query (:body request)
-        variables (when-let [vars (get-in request [:query-params :variables])]
-                    (cheshire/parse-string vars true))]
+        variables (get-param-variables request)]
     {:graphql-query query
      :graphql-vars variables}))
 
 (defmethod extract-query :default [request]
-  (let [query (get-in request [:query-params :query])]
-    {:graphql-query query}))
+  (let [query (get-in request [:query-params :query])
+        variables (get-param-variables request)]
+    {:graphql-query query
+     :graphql-vars variables}))
 
 
 (def json-response-interceptor

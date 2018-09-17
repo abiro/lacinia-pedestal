@@ -113,6 +113,19 @@
                         (catch Exception t
                           %))))))
 
+(defn send-get-request
+  "Sends a GraphQL GET request with variables and returns the response."
+  ([query vars]
+   (-> {:method :get
+        :url "http://localhost:8888/graphql"
+        :throw-exceptions false}
+       (assoc-in [:query-params :query] query)
+       (assoc-in [:query-params :variables] (cheshire/generate-string vars))
+       client/request
+       (update :body #(try
+                        (cheshire/parse-string % true)
+                        (catch Exception t
+                          %))))))
 
 (defn send-json-request
   ([method json]
